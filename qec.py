@@ -2,6 +2,7 @@ from unittest import result
 import numpy as np
 from numpy.linalg import matrix_rank
 from collections import OrderedDict
+import time
 
 def parseToBinary(inputlist):
     fullmatrix = []
@@ -109,16 +110,23 @@ def ge(M,right):
                 i -= 1
                 j -= 1        
             break
-
+        
+        #print("M: ",M)
         aijn = M[i, j:]
+        #print("ajin: ",aijn)
         col = np.copy(M[:, j])
-
+        #print("col: ",col)
         col[i] = 0
+
         ops.append(["op",i,j,col])
 
         flip = np.outer(col, aijn)
+        #print("flip: ",flip)
 
+        #print("M[:, j:]: ",M[:, j:])
         M[:, j:] = M[:, j:] ^ flip
+
+        #print("M[:, j:]: ",M[:, j:])
 
         i += 1
         j += 1 
@@ -247,8 +255,13 @@ def getNiceLogicalPauliOps(commutinglist,logicallist):
 
 # -- HERE STARTS THE MAIN PROGRAM --
 
-# FIRST I READ THE INPUT FILE AND GET THE DATA
+first_times = []
+second_times = []
+third_times = []
+fourth_times = []
 
+# FIRST I READ THE INPUT FILE AND GET THE DATA
+begin = time.perf_counter()
 input = []
 
 f = open("input.txt", "r")
@@ -262,16 +275,18 @@ n = len(input[0])
 # I SEPARATE FULL, LEFT AND RIGHT MATRICES (BUT I ONLY USE LEFT AND RIGHT)
 
 full = parseToBinary(input)
-
+end = time.perf_counter()
+first_times.append(end-begin)
 # WE TAKE THE INPUT PAULI GROUP ELEMENTS AND FIND THE LARGEST SUBSET OF COMMUTING PAULI GROUP ELEMENTS. IF THE NUMBER IS LESS THAN N-1, THEN THE PROGRAM ENDS.
-
+begin = time.perf_counter()
 commutinglist = findcommutinglist(full)
 if(len(commutinglist) < n-1):
-    print("The input does not include at least n-1 commuting pauli group elements, thus we can not calculate the logical X and Z operations")
+    print("The input does not include at least n-1 commuting pauli group elements, thus we can not calculate single logical X and Z operations")
     raise SystemExit(0)
-
+end = time.perf_counter()
+second_times.append(end-begin)
 # WE SLICE THE FULL MATRIX INTO HALF (LEFT AND RIGHT MATRIX)
-
+begin = time.perf_counter()
 left, right = slicematrix(commutinglist)
 leftmatrix = np.matrix(left)
 rightmatrix = np.matrix(right)
@@ -279,7 +294,6 @@ rleft = matrix_rank(leftmatrix)
 rright = matrix_rank(rightmatrix)
 
 # THEN I DO THE GAUSSIAN ELIMINATION ON THE LEFT MATRIX UPPER SUBMATRIX
-
 resultleft = ge(leftmatrix,False)
 changedleftmatrix = resultleft[0]
 qswapsleft = resultleft[1]
@@ -381,3 +395,16 @@ xchoices = getNiceLogicalPauliOps(commutinglist,listx)
 
 print(f"THE SET OF ALL NICE LOGICAL Z CHOICES FOR {len(finalz)} QUBITS: {zchoices}")
 print(f"THE SET OF ALL NICE LOGICAL X CHOICES FOR {len(finalx)} QUBITS: {xchoices}")
+
+#I WRITE RESULT TO FILE
+
+file1 = open("outputX.txt", "w")
+for i in xchoices:
+    file1.write(i + '\n')
+file1.close()
+
+file2 = open("outputZ.txt", "w")
+for i in zchoices:
+    file2.write(i + '\n')
+file2.close()
+

@@ -26,10 +26,15 @@ python qec.py input.txt
 The input Pauli group elements are given on separate lines and formatted as follows (7-qubit example):
 
 IIIXXXX
+
 IXXIIXX
+
 XIXIXIX
+
 IIIZZZZ
+
 IZZIIZZ
+
 ZIZIZIZ
 
 There is no limit to the amount of lines the code can have, but the code currently supports only finding a logical X and Z for 1 logical qubit. Therefore the input set must include at least n-1 commuting generators of the stabilizer.

@@ -1,6 +1,6 @@
 # Quantum error correction software tool
 Software for finding suitable logical Z and X gates given a set of commuting Pauli generators.
-### Authors: Uku Kangur
+### Author: Uku Kangur
 
 This project implements the algorithm outlined by Nielsen & Chuang [[1]](#1) in Python. The project composes of four **primary** files:
 
